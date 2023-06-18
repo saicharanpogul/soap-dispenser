@@ -8,9 +8,7 @@ describe("soap-dispenser", () => {
 
   const program = anchor.workspace.SoapDispenser as Program<SoapDispenser>;
 
-  it("Is initialized!", async () => {
-    // Add your test here.
-    const tx = await program.methods.initialize().rpc();
-    console.log("Your transaction signature", tx);
+  it("", async () => {
+    console.log(anchor.AnchorProvider.env().connection.rpcEndpoint);
   });
 });

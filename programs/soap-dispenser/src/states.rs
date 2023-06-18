@@ -18,8 +18,9 @@ pub struct Dispenser {
     pub start_date: Option<i64>,
     // end data
     pub end_date: Option<i64>,
-    // tree details
-    pub tree: Vec<Tree>,
+    // TODO: Support multiple merkle trees
+    // pub tree: Vec<Tree>,
+    pub tree: Tree,
 }
 
 impl Dispenser {

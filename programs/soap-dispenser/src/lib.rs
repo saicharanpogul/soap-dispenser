@@ -14,12 +14,22 @@ pub mod soap_dispenser {
 
     pub fn init(
         ctx: Context<InitDispenser>,
-        _number_of_trees: u8,
-        name: String,
-        symbol: String,
-        uri: String,
+        // number_of_trees: u8,
+        max_depth: u32,
+        max_buffer_size: u32,
+        public: Option<bool>,
+        start_date: Option<i64>,
+        end_date: Option<i64>,
     ) -> Result<()> {
-        init::init_handler(ctx, name, symbol, uri)
+        init::init_handler(
+            ctx,
+            // number_of_trees,
+            max_depth,
+            max_buffer_size,
+            public,
+            start_date,
+            end_date
+        )
     }
 
     pub fn fund_pot(ctx: Context<FundPot>, lamports: u64) -> Result<()> {
