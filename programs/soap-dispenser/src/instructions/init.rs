@@ -1,10 +1,10 @@
 use anchor_lang::prelude::*;
 use anchor_spl::{token::Token, associated_token::AssociatedToken};
 use mpl_bubblegum::{
+    program::Bubblegum,
     state::{
-        TreeConfig, 
-        TREE_AUTHORITY_SIZE
-    }, program::Bubblegum};
+        metaplex_anchor::MplTokenMetadata
+    }};
 use solana_program::program::invoke_signed;
 use spl_account_compression::{Noop, program::SplAccountCompression};
 use crate::{states::{Dispenser, Tree}, constants::{
@@ -13,12 +13,12 @@ use crate::{states::{Dispenser, Tree}, constants::{
 }};
 
 #[derive(Accounts)]
-// #[instruction(number_of_trees: u8)]
 pub struct InitDispenser<'info> {
     #[account(
         seeds=[
             DISPENSER_PREFIX,
             authority.key().as_ref(),
+            collection_mint.key().as_ref(),
         ],
         bump,
         init,
@@ -28,39 +28,34 @@ pub struct InitDispenser<'info> {
     pub dispenser: Box<Account<'info, Dispenser>>,
     #[account(mut)]
     authority: Signer<'info>,
+    /// CHECK: Metaplex will check this
     #[account(mut)]
-    collection_mint: Signer<'info>,
-    #[account(
-        init,
-        seeds = [merkle_tree.key().as_ref()],
-        payer = authority,
-        space = TREE_AUTHORITY_SIZE,
-        bump,
-    )]
-    pub tree_authority: Account<'info, TreeConfig>,
-    #[account(zero)]
+    collection_mint: UncheckedAccount<'info>,
     /// CHECK: This account must be all zeros
+    #[account(mut)]
+    pub tree_authority: UncheckedAccount<'info>,
+    /// CHECK: This account must be all zeros
+    #[account(mut)]
     pub merkle_tree: UncheckedAccount<'info>,
     pub system_program: Program<'info, System>,
     pub token_program: Program<'info, Token>,
     pub associated_token_program: Program<'info, AssociatedToken>,
+    /// CHECK: Metaplex will check this
     pub bubblegum_program: Program<'info, Bubblegum>,
     /// CHECK: Metaplex will check this
-    pub token_metadata_program: UncheckedAccount<'info>,
+    pub token_metadata_program: Program<'info, MplTokenMetadata>,
     pub log_wrapper: Program<'info, Noop>,
     pub compression_program: Program<'info, SplAccountCompression>,
 }
 
 pub fn init_handler(
     ctx: Context<InitDispenser>,
-    // number_of_trees: u8,
     max_depth: u32,
     max_buffer_size: u32,
     public: Option<bool>,
-    start_date: Option<i64>,
-    end_date: Option<i64>,
+    start_date: Option<u64>,
+    end_date: Option<u64>,
 ) -> Result<()> {
-
     let cpi_program = ctx.accounts.bubblegum_program.key();
     let cpi_accounts: Vec<AccountMeta> = vec![
         AccountMeta::new(ctx.accounts.tree_authority.key(), false),
@@ -76,8 +71,15 @@ pub fn init_handler(
     data.extend(CREATE_TREE_DISCRIMINATOR);
     data.extend(max_depth.to_le_bytes());
     data.extend(max_buffer_size.to_le_bytes());
-    data.extend(std::iter::once(public.unwrap() as u8));
 
+    match public {
+        Option::Some(ref is_public) => {
+            data.push(1);
+            data.push(is_public.to_owned() as u8);
+        }
+        Option::None => data.push(0),
+    }
+    
     let account_infos: Vec<AccountInfo> = vec![
         ctx.accounts.tree_authority.to_account_info(),
         ctx.accounts.merkle_tree.to_account_info(),
@@ -88,6 +90,12 @@ pub fn init_handler(
         ctx.accounts.system_program.to_account_info(),
     ];
 
+    let seeds = &[
+            &DISPENSER_PREFIX[..],
+            ctx.accounts.authority.key.as_ref(),
+            ctx.accounts.collection_mint.key.as_ref(),
+            &[*ctx.bumps.get("dispenser").unwrap()],
+        ];
     invoke_signed(
         & solana_program::instruction::Instruction {
             program_id: cpi_program,
@@ -95,17 +103,26 @@ pub fn init_handler(
             data,
         },
         &account_infos[..],
-        &[&[
-            DISPENSER_PREFIX, &[*ctx.bumps.get("dispenser").unwrap()]
-            ]]
+        &[&seeds[..]]
     )?;
 
     let dispenser = &mut ctx.accounts.dispenser;
 
     dispenser.creator = ctx.accounts.authority.key();
     dispenser.collection_mint = ctx.accounts.collection_mint.key();
-    dispenser.start_date = Some(start_date.unwrap());
-    dispenser.end_date = Some(end_date.unwrap());
+
+    match start_date {
+        Option::Some(ref _start_date) => {
+            dispenser.start_date = Some(*_start_date as i64);
+        }
+        Option::None => {}
+    }
+    match end_date {
+        Option::Some(ref _end_date) => {
+            dispenser.end_date = Some(*_end_date as i64);
+        }
+        Option::None => {}
+    }
 
     // TODO: Support multiple merkle trees
     dispenser.tree = Tree {
@@ -113,21 +130,5 @@ pub fn init_handler(
         authority: ctx.accounts.tree_authority.key(),
     };
 
-    // CpiContext::new_with_signer(
-    //     ctx.accounts.bubblegum_program.to_account_info(), [
-    //     ctx.accounts.tree_authority.to_account_info(),
-    //     ctx.accounts.merkle_tree.to_account_info(),
-    //     ctx.accounts.authority.to_account_info(),
-    //     ctx.accounts.dispenser.to_account_info(),
-    //     ctx.accounts.log_wrapper.to_account_info(),
-    //     ctx.accounts.compression_program.to_account_info(),
-    //     ctx.accounts.system_program.to_account_info(),
-    // ], &[&[
-    //     DISPENSER, 
-    //     ctx.accounts.dispenser.key().as_ref(), 
-    //     &[*ctx.bumps.get("dispenser").unwrap()]
-    //     ]])?;
-
-    // bubblegum::create_tree(ctx, max_depth, max_buffer_size, public)?;
     Ok(())
 }

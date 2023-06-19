@@ -7,6 +7,8 @@ import {
   sendAndConfirmTransaction,
 } from "@solana/web3.js";
 import {
+  DISPENSER_PREFIX,
+  SOAP_DISPENSER_PROGRAM_ADDRESS,
   Workspace,
   connection,
   findDispenserPda,
@@ -20,35 +22,56 @@ import { PROGRAM_ID as TOKEN_METADATA_PROGRAM_ADDRESS } from "@metaplex-foundati
 import {
   SPL_ACCOUNT_COMPRESSION_PROGRAM_ID,
   SPL_NOOP_PROGRAM_ID,
+  getConcurrentMerkleTreeAccountSize,
 } from "@solana/spl-account-compression";
 import {
   TOKEN_PROGRAM_ID,
   getAssociatedTokenAddressSync,
 } from "@solana/spl-token";
 import { ASSOCIATED_PROGRAM_ID } from "@coral-xyz/anchor/dist/cjs/utils/token";
-import { Metaplex, keypairIdentity } from "@metaplex-foundation/js";
+import {
+  BigNumber,
+  Metaplex,
+  keypairIdentity,
+  toBigNumber,
+} from "@metaplex-foundation/js";
 import { Network, getUrls } from "./networks";
+import BN from "bn.js";
 
 export const init = async ({
   authority,
   metaplex,
+  maxDepth,
+  maxBufferSize,
+  isPublic,
+  startDate,
+  endDate,
 }: {
   authority: Keypair;
   metaplex: Metaplex;
+  maxDepth: number;
+  maxBufferSize: number;
+  isPublic: boolean;
+  startDate: BN | null;
+  endDate: BN | null;
 }) => {
   try {
+    console.log(endDate.toNumber());
     const { program, programId, provider, connection } = new Workspace(
       authority
     );
     const collectionMint = Keypair.generate();
-    const tree = Keypair.generate();
-    const dispenser = findDispenserPda(authority.publicKey);
-    const treeAuthority = findTreeAuthorityPda(tree.publicKey);
+    const merkleTree = Keypair.generate();
+    const dispenser = findDispenserPda(
+      authority.publicKey,
+      collectionMint.publicKey
+    );
+    const treeAuthority = findTreeAuthorityPda(merkleTree.publicKey);
 
     const latestBlockhash = await connection.getLatestBlockhash();
 
     const createCollection = await metaplex.nfts().builders().create({
-      name: "First cNFT",
+      name: "First cNFT Collection",
       symbol: "SOAP",
       uri: "https://arweave.net/mo4NBHmhuCt9ZjJ6jykMgKw-te0uTdgDBkBjVAJ-v20",
       sellerFeeBasisPoints: 0,
@@ -62,20 +85,27 @@ export const init = async ({
 
     createCollectionTx.feePayer = authority.publicKey;
 
-    const initTx = await program.methods
-      .init(
-        3, // maxDepth
-        8, // maxBufferSize
-        true,
-        null,
-        null
-      )
+    const space = getConcurrentMerkleTreeAccountSize(maxDepth, maxBufferSize);
+
+    const initTx = new Transaction();
+
+    const createTreeIx = SystemProgram.createAccount({
+      newAccountPubkey: merkleTree.publicKey,
+      fromPubkey: authority.publicKey,
+      space: space,
+      lamports: await connection.getMinimumBalanceForRentExemption(space),
+      programId: SPL_ACCOUNT_COMPRESSION_PROGRAM_ID,
+    });
+    initTx.add(createTreeIx);
+
+    const initIx = await program.methods
+      .init(maxDepth, maxBufferSize, isPublic, startDate, endDate)
       .accounts({
         dispenser,
         authority: authority.publicKey,
         collectionMint: collectionMint.publicKey,
         treeAuthority,
-        merkleTree: tree.publicKey,
+        merkleTree: merkleTree.publicKey,
         systemProgram: SystemProgram.programId,
         tokenProgram: TOKEN_PROGRAM_ID,
         associatedTokenProgram: ASSOCIATED_PROGRAM_ID,
@@ -85,7 +115,8 @@ export const init = async ({
         logWrapper: SPL_NOOP_PROGRAM_ID,
       })
       .signers([authority])
-      .transaction();
+      .instruction();
+    initTx.add(initIx);
 
     initTx.feePayer = authority.publicKey;
     initTx.recentBlockhash = latestBlockhash.blockhash;
@@ -105,7 +136,7 @@ export const init = async ({
     const initSig = await sendAndConfirmTransaction(
       connection,
       initTx,
-      [authority],
+      [merkleTree, authority],
       { commitment: "confirmed" }
     );
 
@@ -119,7 +150,17 @@ const main = async () => {
   try {
     const authority = await initializeKeypair(connection, "soap_creator_1");
     const metaplex = Metaplex.make(connection).use(keypairIdentity(authority));
-    await init({ authority, metaplex });
+    await init({
+      authority,
+      metaplex,
+      maxDepth: 3,
+      maxBufferSize: 8,
+      isPublic: false,
+      endDate: toBigNumber(new Date().getTime()).add(
+        toBigNumber(1 * 24 * 60 * 60 * 1000)
+      ),
+      startDate: null,
+    });
   } catch (error) {
     console.log(error);
   }

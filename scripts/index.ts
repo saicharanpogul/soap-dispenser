@@ -25,9 +25,18 @@ export const POT_PREFIX = "pot";
 
 export const DISPENSER_PREFIX = "dispenser";
 
-export const findDispenserPda = (authority: PublicKey) =>
+export const TREE_AUTHORITY_SIZE = 96;
+
+export const findDispenserPda = (
+  authority: PublicKey,
+  collectionMint: PublicKey
+) =>
   PublicKey.findProgramAddressSync(
-    [Buffer.from(DISPENSER_PREFIX), authority.toBuffer()],
+    [
+      Buffer.from(DISPENSER_PREFIX),
+      authority.toBuffer(),
+      collectionMint.toBuffer(),
+    ],
     SOAP_DISPENSER_PROGRAM_ADDRESS
   )[0];
 

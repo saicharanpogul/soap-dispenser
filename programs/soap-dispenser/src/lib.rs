@@ -14,16 +14,14 @@ pub mod soap_dispenser {
 
     pub fn init(
         ctx: Context<InitDispenser>,
-        // number_of_trees: u8,
         max_depth: u32,
         max_buffer_size: u32,
         public: Option<bool>,
-        start_date: Option<i64>,
-        end_date: Option<i64>,
+        start_date: Option<u64>,
+        end_date: Option<u64>,
     ) -> Result<()> {
         init::init_handler(
             ctx,
-            // number_of_trees,
             max_depth,
             max_buffer_size,
             public,
@@ -34,6 +32,10 @@ pub mod soap_dispenser {
 
     pub fn fund_pot(ctx: Context<FundPot>, lamports: u64) -> Result<()> {
         fund_pot::fund_pot_handler(ctx, lamports)
+    }
+
+    pub fn mint(ctx: Context<Mint>) -> Result<()> {
+        mint::mint_handler(ctx)
     }
 
     pub fn withdraw_pot(ctx: Context<WithdrawPot>, lamports: u64) -> Result<()> {
