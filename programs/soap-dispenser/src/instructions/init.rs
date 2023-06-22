@@ -5,7 +5,7 @@ use mpl_bubblegum::{
     state::{
         metaplex_anchor::MplTokenMetadata
     }};
-use solana_program::program::invoke_signed;
+use solana_program::program::{invoke_signed, invoke};
 use spl_account_compression::{Noop, program::SplAccountCompression};
 use crate::{states::{Dispenser, Tree}, constants::{
     DISPENSER_PREFIX,
@@ -27,10 +27,16 @@ pub struct InitDispenser<'info> {
     )]
     pub dispenser: Box<Account<'info, Dispenser>>,
     #[account(mut)]
-    authority: Signer<'info>,
+    pub authority: Signer<'info>,
     /// CHECK: Metaplex will check this
     #[account(mut)]
-    collection_mint: UncheckedAccount<'info>,
+    pub collection_mint: UncheckedAccount<'info>,
+    /// CHECK: Metaplex will check this
+    #[account(mut)]
+    pub collection_authority_record: UncheckedAccount<'info>,
+    /// CHECK: Metaplex will check this
+    #[account(mut)]
+    pub collection_metadata: UncheckedAccount<'info>,
     /// CHECK: This account must be all zeros
     #[account(mut)]
     pub tree_authority: UncheckedAccount<'info>,
@@ -40,9 +46,7 @@ pub struct InitDispenser<'info> {
     pub system_program: Program<'info, System>,
     pub token_program: Program<'info, Token>,
     pub associated_token_program: Program<'info, AssociatedToken>,
-    /// CHECK: Metaplex will check this
     pub bubblegum_program: Program<'info, Bubblegum>,
-    /// CHECK: Metaplex will check this
     pub token_metadata_program: Program<'info, MplTokenMetadata>,
     pub log_wrapper: Program<'info, Noop>,
     pub compression_program: Program<'info, SplAccountCompression>,
@@ -56,6 +60,25 @@ pub fn init_handler(
     start_date: Option<u64>,
     end_date: Option<u64>,
 ) -> Result<()> {
+
+    invoke(&mpl_token_metadata::instruction::approve_collection_authority(
+        ctx.accounts.token_metadata_program.key(),
+        ctx.accounts.collection_authority_record.key(),
+        ctx.accounts.dispenser.key(),
+        ctx.accounts.authority.key(),
+        ctx.accounts.authority.key(),
+        ctx.accounts.collection_metadata.key(),
+        ctx.accounts.collection_mint.key(),
+    ), &[
+        ctx.accounts.token_metadata_program.to_account_info(),
+        ctx.accounts.collection_authority_record.to_account_info(),
+        ctx.accounts.dispenser.to_account_info(),
+        ctx.accounts.authority.to_account_info(),
+        ctx.accounts.authority.to_account_info(),
+        ctx.accounts.collection_metadata.to_account_info(),
+        ctx.accounts.collection_mint.to_account_info()
+    ])?;
+
     let cpi_program = ctx.accounts.bubblegum_program.key();
     let cpi_accounts: Vec<AccountMeta> = vec![
         AccountMeta::new(ctx.accounts.tree_authority.key(), false),

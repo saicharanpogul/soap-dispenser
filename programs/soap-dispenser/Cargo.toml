@@ -16,13 +16,9 @@ cpi = ["no-entrypoint"]
 default = []
 
 [dependencies]
-# anchor-lang = "0.26.0"
-# solana-program = "^1.14.13"
-# mpl-token-metadata = { version = "1.12.0", features = ["no-entrypoint"] }
-# spl-account-compression = { version="0.1.8", features = ["cpi"] }
 anchor-lang = { version = "0.26.0", features = ["init-if-needed"] }
 anchor-spl = { version = "0.26.0" }
-mpl-bubblegum = { version = "0.8.0", features = ["no-entrypoint"] }
+mpl-bubblegum = { version = "0.8.0", features = ["cpi"] }
 mpl-token-metadata = { version = "1.11", features = ["no-entrypoint"] }
 solana-program = "1.14.13"
 spl-account-compression = { version="0.1.8", features = ["cpi"] }

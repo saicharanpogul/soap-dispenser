@@ -1,4 +1,7 @@
-import { PROGRAM_ID as BUBBLEGUM_PROGRAM_ID } from "@metaplex-foundation/mpl-bubblegum";
+import {
+  PROGRAM_ID as BUBBLEGUM_PROGRAM_ID,
+  createMintToCollectionV1Instruction,
+} from "@metaplex-foundation/mpl-bubblegum";
 import {
   Keypair,
   PublicKey,
@@ -56,7 +59,6 @@ export const init = async ({
   endDate: BN | null;
 }) => {
   try {
-    console.log(endDate.toNumber());
     const { program, programId, provider, connection } = new Workspace(
       authority
     );
@@ -67,6 +69,17 @@ export const init = async ({
       collectionMint.publicKey
     );
     const treeAuthority = findTreeAuthorityPda(merkleTree.publicKey);
+    const collectionAuthorityRecord = metaplex
+      .nfts()
+      .pdas()
+      .collectionAuthorityRecord({
+        mint: collectionMint.publicKey,
+        collectionAuthority: dispenser,
+      });
+    const collectionMetadata = metaplex
+      .nfts()
+      .pdas()
+      .metadata({ mint: collectionMint.publicKey });
 
     const latestBlockhash = await connection.getLatestBlockhash();
 
@@ -76,6 +89,8 @@ export const init = async ({
       uri: "https://arweave.net/mo4NBHmhuCt9ZjJ6jykMgKw-te0uTdgDBkBjVAJ-v20",
       sellerFeeBasisPoints: 0,
       useNewMint: collectionMint,
+      collectionIsSized: true,
+      isCollection: true,
     });
 
     const createCollectionTx = createCollection.toTransaction({
@@ -104,6 +119,8 @@ export const init = async ({
         dispenser,
         authority: authority.publicKey,
         collectionMint: collectionMint.publicKey,
+        collectionAuthorityRecord,
+        collectionMetadata,
         treeAuthority,
         merkleTree: merkleTree.publicKey,
         systemProgram: SystemProgram.programId,
@@ -141,6 +158,8 @@ export const init = async ({
     );
 
     console.log("Init:", getUrls(Network[network], initSig, "tx").explorer);
+    console.log("Dispenser:", dispenser.toBase58());
+    console.log("Collection Mint:", collectionMint.publicKey.toBase58());
   } catch (error) {
     throw error;
   }
@@ -164,6 +183,7 @@ const main = async () => {
   } catch (error) {
     console.log(error);
   }
+  // createMintToCollectionV1Instruction
 };
 
 main();

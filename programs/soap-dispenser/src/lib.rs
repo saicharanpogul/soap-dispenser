@@ -5,11 +5,13 @@ pub mod states;
 pub mod utils;
 
 use {anchor_lang::prelude::*, instructions::*};
+use crate::constants::MintArgs;
 
 declare_id!("SDGQRX2DBX3qDNjEnEyryXFsGj2Sq6NXJd2SmZ3kfJ6");
 
 #[program]
 pub mod soap_dispenser {
+
     use super::*;
 
     pub fn init(
@@ -34,8 +36,8 @@ pub mod soap_dispenser {
         fund_pot::fund_pot_handler(ctx, lamports)
     }
 
-    pub fn mint(ctx: Context<Mint>) -> Result<()> {
-        mint::mint_handler(ctx)
+    pub fn mint(ctx: Context<Mint>, mint_args: MintArgs) -> Result<()> {
+        mint::mint_handler(ctx, mint_args)
     }
 
     pub fn withdraw_pot(ctx: Context<WithdrawPot>, lamports: u64) -> Result<()> {

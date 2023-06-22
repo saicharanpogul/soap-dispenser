@@ -1,5 +1,5 @@
 
-use crate::states::Dispenser;
+use crate::states::{Dispenser, Pot};
 
 use {
     anchor_lang::{
@@ -7,23 +7,34 @@ use {
         system_program::{Transfer, transfer},
     },
     crate::constants::POT_PREFIX,
-    
+    anchor_spl::token::ID as TOKEN_PROGRAM,
 };
 
 
 #[derive(Accounts)]
 pub struct FundPot<'info> {
     #[account(
-        mut,
+        init_if_needed,
         seeds = [
             POT_PREFIX,
-            dispenser.key().as_ref(),
             authority.key().as_ref(),
+            dispenser.key().as_ref(),
+            collection_mint.key().as_ref()
         ],
         bump,
+        payer = authority,
+        space = 8,
     )]
-    pub pot: SystemAccount<'info>,
+    pub pot: Account<'info, Pot>,
     pub dispenser: Account<'info, Dispenser>,
+    /// CHECK: Metaplex will check this
+    #[account(
+        mut,
+        owner = TOKEN_PROGRAM,
+        constraint = dispenser.collection_mint.key() == collection_mint.key()
+    )]
+    pub collection_mint: UncheckedAccount<'info>,
+    #[account(mut)]
     pub authority: Signer<'info>,
     pub system_program: Program<'info, System>,
 }

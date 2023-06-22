@@ -33,3 +33,6 @@ impl Dispenser {
         4 + (*size as usize) * std::mem::size_of::<Tree>() // VEC: merkle tree
     }
 }
+
+#[account]
+pub struct Pot {}

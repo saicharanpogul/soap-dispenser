@@ -10,3 +10,4 @@ test-ledger
 
 keys.json
 id.json
+.env
