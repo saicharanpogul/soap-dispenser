@@ -194,6 +194,7 @@ export const POST = async (req: Request, context: any) => {
     const authority = searchParams.get("authority");
     const collection = searchParams.get("collection");
     const { account } = body;
+    console.log(account, collection, authority);
     if (!account || !collection || !authority)
       throw new Error("Missing account");
     const receiver = new PublicKey(account);
