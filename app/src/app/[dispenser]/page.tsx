@@ -50,12 +50,7 @@ const Dispenser: React.FC<Props> = ({ params }) => {
     fetchData();
   }, [fetchData]);
 
-  const qr = createQR(
-    `${SERVER}/api/mint?dispenser=11111`,
-    250,
-    "white",
-    "black"
-  );
+  const qr = createQR(`${SERVER}/api/mint`, 250, "white", "black");
   const qrRef = useRef<HTMLDivElement>();
   if (qrRef.current) {
     qrRef.current.innerHTML = "";
