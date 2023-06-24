@@ -50,8 +50,12 @@ const Dispenser: React.FC<Props> = ({ params }) => {
     fetchData();
   }, [fetchData]);
 
+  const urlEncoded = encodeURIComponent(
+    `?collection=${collection?.address?.toBase58()}&authority=${dispenserAccount?.creator?.toBase58()}`
+  );
+
   const qr = createQR(
-    `solana:${SERVER}/api/mint?collection=${collection?.address?.toBase58()}&authority=${dispenserAccount?.creator?.toBase58()}`,
+    `solana:${SERVER}/api/mint${urlEncoded}`,
     250,
     "white",
     "black"
