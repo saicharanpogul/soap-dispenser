@@ -36,7 +36,7 @@ pub struct WithdrawPot<'info> {
 }
 
 pub fn withdraw_pot_handler(ctx: Context<WithdrawPot>, lamports: u64) -> Result<()> {
-    /// More checks are needed and should be clearly written by check does account has to be closed or not if tired to remove rent exampt funds too!
+    // More checks are needed and should be clearly written by check does account has to be closed or not if tired to remove rent exampt funds too!
     let pot_balance = **ctx.accounts.pot.to_account_info().lamports.borrow_mut();
     if pot_balance.le(&lamports) {
         return Err(SoapCode::InsufficientFundsInPot)?;

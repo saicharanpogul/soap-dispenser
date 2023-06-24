@@ -1,7 +1,8 @@
 {
   "scripts": {
     "lint:fix": "prettier */*.js \"*/**/*{.js,.ts}\" -w",
-    "lint": "prettier */*.js \"*/**/*{.js,.ts}\" --check"
+    "lint": "prettier */*.js \"*/**/*{.js,.ts}\" --check",
+    "copy": "cp ./target/types/soap_dispenser.ts ./app/src/types/soap_dispenser.ts && cp ./target/idl/soap_dispenser.json ./app/src/constants/soap_dispenser.json"
   },
   "dependencies": {
     "@coral-xyz/anchor": "^0.28.0",

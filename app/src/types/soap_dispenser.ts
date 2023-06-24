@@ -1,0 +1,1243 @@
+export type SoapDispenser = {
+  "version": "0.1.0",
+  "name": "soap_dispenser",
+  "constants": [
+    {
+      "name": "POT_PREFIX",
+      "type": "bytes",
+      "value": "[112, 111, 116]"
+    },
+    {
+      "name": "DISPENSER_PREFIX",
+      "type": "bytes",
+      "value": "[100, 105, 115, 112, 101, 110, 115, 101, 114]"
+    },
+    {
+      "name": "CREATE_TREE_DISCRIMINATOR",
+      "type": {
+        "array": [
+          "u8",
+          8
+        ]
+      },
+      "value": "[165 , 83 , 136 , 142 , 89 , 202 , 47 , 220]"
+    },
+    {
+      "name": "MINT_TO_COLLECTION_V1_DISCRIMINATOR",
+      "type": {
+        "array": [
+          "u8",
+          8
+        ]
+      },
+      "value": "[153 , 18 , 178 , 47 , 197 , 158 , 86 , 15]"
+    }
+  ],
+  "instructions": [
+    {
+      "name": "init",
+      "accounts": [
+        {
+          "name": "dispenser",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "authority",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "collectionMint",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "collectionAuthorityRecord",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "collectionMetadata",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "treeAuthority",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "merkleTree",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "tokenProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "associatedTokenProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "bubblegumProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "tokenMetadataProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "logWrapper",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "compressionProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "maxDepth",
+          "type": "u32"
+        },
+        {
+          "name": "maxBufferSize",
+          "type": "u32"
+        },
+        {
+          "name": "public",
+          "type": {
+            "option": "bool"
+          }
+        },
+        {
+          "name": "startDate",
+          "type": {
+            "option": "u64"
+          }
+        },
+        {
+          "name": "endDate",
+          "type": {
+            "option": "u64"
+          }
+        }
+      ]
+    },
+    {
+      "name": "fundPot",
+      "accounts": [
+        {
+          "name": "pot",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "dispenser",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "collectionMint",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "authority",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "lamports",
+          "type": "u64"
+        }
+      ]
+    },
+    {
+      "name": "mint",
+      "accounts": [
+        {
+          "name": "dispenser",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "pot",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "treeAuthority",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "leafOwner",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "leafDelegate",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "merkleTree",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "authority",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "treeDelegate",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "collectionAuthorityRecordPda",
+          "isMut": false,
+          "isSigner": false,
+          "docs": [
+            "If there is no collecton authority record PDA then",
+            "this must be the Bubblegum program address."
+          ]
+        },
+        {
+          "name": "collectionMint",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "collectionMetadata",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "editionAccount",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "bubblegumSigner",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "bubblegumProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "logWrapper",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "compressionProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "tokenMetadataProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "mintArgs",
+          "type": {
+            "defined": "MintArgs"
+          }
+        }
+      ]
+    },
+    {
+      "name": "withdrawPot",
+      "accounts": [
+        {
+          "name": "pot",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "dispenser",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "collectionMint",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "authority",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "lamports",
+          "type": "u64"
+        }
+      ]
+    }
+  ],
+  "accounts": [
+    {
+      "name": "dispenser",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "creator",
+            "type": "publicKey"
+          },
+          {
+            "name": "collectionMint",
+            "type": "publicKey"
+          },
+          {
+            "name": "startDate",
+            "type": {
+              "option": "i64"
+            }
+          },
+          {
+            "name": "endDate",
+            "type": {
+              "option": "i64"
+            }
+          },
+          {
+            "name": "tree",
+            "type": {
+              "defined": "Tree"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "pot",
+      "type": {
+        "kind": "struct",
+        "fields": []
+      }
+    }
+  ],
+  "types": [
+    {
+      "name": "SDCreator",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "address",
+            "type": "publicKey"
+          },
+          {
+            "name": "verified",
+            "type": "bool"
+          },
+          {
+            "name": "share",
+            "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "SDUses",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "useMethod",
+            "type": {
+              "defined": "SDUseMethod"
+            }
+          },
+          {
+            "name": "remaining",
+            "type": "u64"
+          },
+          {
+            "name": "total",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "SDCollection",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "verified",
+            "type": "bool"
+          },
+          {
+            "name": "key",
+            "type": "publicKey"
+          }
+        ]
+      }
+    },
+    {
+      "name": "SDMetadataArgs",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "name",
+            "docs": [
+              "The name of the asset"
+            ],
+            "type": "string"
+          },
+          {
+            "name": "symbol",
+            "docs": [
+              "The symbol for the asset"
+            ],
+            "type": "string"
+          },
+          {
+            "name": "uri",
+            "docs": [
+              "URI pointing to JSON representing the asset"
+            ],
+            "type": "string"
+          },
+          {
+            "name": "sellerFeeBasisPoints",
+            "docs": [
+              "Royalty basis points that goes to creators in secondary sales (0-10000)"
+            ],
+            "type": "u16"
+          },
+          {
+            "name": "primarySaleHappened",
+            "type": "bool"
+          },
+          {
+            "name": "isMutable",
+            "type": "bool"
+          },
+          {
+            "name": "editionNonce",
+            "docs": [
+              "nonce for easy calculation of editions, if present"
+            ],
+            "type": {
+              "option": "u8"
+            }
+          },
+          {
+            "name": "tokenStandard",
+            "docs": [
+              "Since we cannot easily change Metadata, we add the new DataV2 fields here at the end."
+            ],
+            "type": {
+              "option": {
+                "defined": "SDTokenStandard"
+              }
+            }
+          },
+          {
+            "name": "collection",
+            "docs": [
+              "Collection"
+            ],
+            "type": {
+              "option": {
+                "defined": "SDCollection"
+              }
+            }
+          },
+          {
+            "name": "uses",
+            "docs": [
+              "Uses"
+            ],
+            "type": {
+              "option": {
+                "defined": "SDUses"
+              }
+            }
+          },
+          {
+            "name": "tokenProgramVersion",
+            "type": {
+              "defined": "SDTokenProgramVersion"
+            }
+          },
+          {
+            "name": "creators",
+            "type": {
+              "vec": {
+                "defined": "SDCreator"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "MintArgs",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "metadata",
+            "type": {
+              "defined": "SDMetadataArgs"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "Tree",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "merkleTree",
+            "type": "publicKey"
+          },
+          {
+            "name": "authority",
+            "type": "publicKey"
+          }
+        ]
+      }
+    },
+    {
+      "name": "SDTokenProgramVersion",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "Original"
+          },
+          {
+            "name": "Token2022"
+          }
+        ]
+      }
+    },
+    {
+      "name": "SDUseMethod",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "Burn"
+          },
+          {
+            "name": "Multiple"
+          },
+          {
+            "name": "Single"
+          }
+        ]
+      }
+    },
+    {
+      "name": "SDTokenStandard",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "NonFungible"
+          },
+          {
+            "name": "FungibleAsset"
+          },
+          {
+            "name": "Fungible"
+          },
+          {
+            "name": "NonFungibleEdition"
+          }
+        ]
+      }
+    }
+  ],
+  "errors": [
+    {
+      "code": 6000,
+      "name": "InsufficientFundsInPot",
+      "msg": "Insufficient funds in Pot"
+    },
+    {
+      "code": 6001,
+      "name": "MintNotStarted",
+      "msg": "Mint has not yet started"
+    },
+    {
+      "code": 6002,
+      "name": "MintEnded",
+      "msg": "Mint has ended"
+    }
+  ]
+};
+
+export const IDL: SoapDispenser = {
+  "version": "0.1.0",
+  "name": "soap_dispenser",
+  "constants": [
+    {
+      "name": "POT_PREFIX",
+      "type": "bytes",
+      "value": "[112, 111, 116]"
+    },
+    {
+      "name": "DISPENSER_PREFIX",
+      "type": "bytes",
+      "value": "[100, 105, 115, 112, 101, 110, 115, 101, 114]"
+    },
+    {
+      "name": "CREATE_TREE_DISCRIMINATOR",
+      "type": {
+        "array": [
+          "u8",
+          8
+        ]
+      },
+      "value": "[165 , 83 , 136 , 142 , 89 , 202 , 47 , 220]"
+    },
+    {
+      "name": "MINT_TO_COLLECTION_V1_DISCRIMINATOR",
+      "type": {
+        "array": [
+          "u8",
+          8
+        ]
+      },
+      "value": "[153 , 18 , 178 , 47 , 197 , 158 , 86 , 15]"
+    }
+  ],
+  "instructions": [
+    {
+      "name": "init",
+      "accounts": [
+        {
+          "name": "dispenser",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "authority",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "collectionMint",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "collectionAuthorityRecord",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "collectionMetadata",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "treeAuthority",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "merkleTree",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "tokenProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "associatedTokenProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "bubblegumProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "tokenMetadataProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "logWrapper",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "compressionProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "maxDepth",
+          "type": "u32"
+        },
+        {
+          "name": "maxBufferSize",
+          "type": "u32"
+        },
+        {
+          "name": "public",
+          "type": {
+            "option": "bool"
+          }
+        },
+        {
+          "name": "startDate",
+          "type": {
+            "option": "u64"
+          }
+        },
+        {
+          "name": "endDate",
+          "type": {
+            "option": "u64"
+          }
+        }
+      ]
+    },
+    {
+      "name": "fundPot",
+      "accounts": [
+        {
+          "name": "pot",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "dispenser",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "collectionMint",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "authority",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "lamports",
+          "type": "u64"
+        }
+      ]
+    },
+    {
+      "name": "mint",
+      "accounts": [
+        {
+          "name": "dispenser",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "pot",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "treeAuthority",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "leafOwner",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "leafDelegate",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "merkleTree",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "authority",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "treeDelegate",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "collectionAuthorityRecordPda",
+          "isMut": false,
+          "isSigner": false,
+          "docs": [
+            "If there is no collecton authority record PDA then",
+            "this must be the Bubblegum program address."
+          ]
+        },
+        {
+          "name": "collectionMint",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "collectionMetadata",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "editionAccount",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "bubblegumSigner",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "bubblegumProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "logWrapper",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "compressionProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "tokenMetadataProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "mintArgs",
+          "type": {
+            "defined": "MintArgs"
+          }
+        }
+      ]
+    },
+    {
+      "name": "withdrawPot",
+      "accounts": [
+        {
+          "name": "pot",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "dispenser",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "collectionMint",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "authority",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "lamports",
+          "type": "u64"
+        }
+      ]
+    }
+  ],
+  "accounts": [
+    {
+      "name": "dispenser",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "creator",
+            "type": "publicKey"
+          },
+          {
+            "name": "collectionMint",
+            "type": "publicKey"
+          },
+          {
+            "name": "startDate",
+            "type": {
+              "option": "i64"
+            }
+          },
+          {
+            "name": "endDate",
+            "type": {
+              "option": "i64"
+            }
+          },
+          {
+            "name": "tree",
+            "type": {
+              "defined": "Tree"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "pot",
+      "type": {
+        "kind": "struct",
+        "fields": []
+      }
+    }
+  ],
+  "types": [
+    {
+      "name": "SDCreator",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "address",
+            "type": "publicKey"
+          },
+          {
+            "name": "verified",
+            "type": "bool"
+          },
+          {
+            "name": "share",
+            "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "SDUses",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "useMethod",
+            "type": {
+              "defined": "SDUseMethod"
+            }
+          },
+          {
+            "name": "remaining",
+            "type": "u64"
+          },
+          {
+            "name": "total",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "SDCollection",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "verified",
+            "type": "bool"
+          },
+          {
+            "name": "key",
+            "type": "publicKey"
+          }
+        ]
+      }
+    },
+    {
+      "name": "SDMetadataArgs",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "name",
+            "docs": [
+              "The name of the asset"
+            ],
+            "type": "string"
+          },
+          {
+            "name": "symbol",
+            "docs": [
+              "The symbol for the asset"
+            ],
+            "type": "string"
+          },
+          {
+            "name": "uri",
+            "docs": [
+              "URI pointing to JSON representing the asset"
+            ],
+            "type": "string"
+          },
+          {
+            "name": "sellerFeeBasisPoints",
+            "docs": [
+              "Royalty basis points that goes to creators in secondary sales (0-10000)"
+            ],
+            "type": "u16"
+          },
+          {
+            "name": "primarySaleHappened",
+            "type": "bool"
+          },
+          {
+            "name": "isMutable",
+            "type": "bool"
+          },
+          {
+            "name": "editionNonce",
+            "docs": [
+              "nonce for easy calculation of editions, if present"
+            ],
+            "type": {
+              "option": "u8"
+            }
+          },
+          {
+            "name": "tokenStandard",
+            "docs": [
+              "Since we cannot easily change Metadata, we add the new DataV2 fields here at the end."
+            ],
+            "type": {
+              "option": {
+                "defined": "SDTokenStandard"
+              }
+            }
+          },
+          {
+            "name": "collection",
+            "docs": [
+              "Collection"
+            ],
+            "type": {
+              "option": {
+                "defined": "SDCollection"
+              }
+            }
+          },
+          {
+            "name": "uses",
+            "docs": [
+              "Uses"
+            ],
+            "type": {
+              "option": {
+                "defined": "SDUses"
+              }
+            }
+          },
+          {
+            "name": "tokenProgramVersion",
+            "type": {
+              "defined": "SDTokenProgramVersion"
+            }
+          },
+          {
+            "name": "creators",
+            "type": {
+              "vec": {
+                "defined": "SDCreator"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "MintArgs",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "metadata",
+            "type": {
+              "defined": "SDMetadataArgs"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "Tree",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "merkleTree",
+            "type": "publicKey"
+          },
+          {
+            "name": "authority",
+            "type": "publicKey"
+          }
+        ]
+      }
+    },
+    {
+      "name": "SDTokenProgramVersion",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "Original"
+          },
+          {
+            "name": "Token2022"
+          }
+        ]
+      }
+    },
+    {
+      "name": "SDUseMethod",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "Burn"
+          },
+          {
+            "name": "Multiple"
+          },
+          {
+            "name": "Single"
+          }
+        ]
+      }
+    },
+    {
+      "name": "SDTokenStandard",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "NonFungible"
+          },
+          {
+            "name": "FungibleAsset"
+          },
+          {
+            "name": "Fungible"
+          },
+          {
+            "name": "NonFungibleEdition"
+          }
+        ]
+      }
+    }
+  ],
+  "errors": [
+    {
+      "code": 6000,
+      "name": "InsufficientFundsInPot",
+      "msg": "Insufficient funds in Pot"
+    },
+    {
+      "code": 6001,
+      "name": "MintNotStarted",
+      "msg": "Mint has not yet started"
+    },
+    {
+      "code": 6002,
+      "name": "MintEnded",
+      "msg": "Mint has ended"
+    }
+  ]
+};
