@@ -37,8 +37,8 @@ const Dispenser: React.FC<Props> = ({ params }) => {
         mintAddress: _dispenserAccount?.collectionMint as PublicKey,
       });
       setCollection(_collection);
-      console.log(_dispenserAccount);
-      console.log(_collection);
+      //   console.log(_dispenserAccount);
+      //   console.log(_collection);
     } catch (error) {
       console.log(error);
     } finally {
@@ -50,7 +50,13 @@ const Dispenser: React.FC<Props> = ({ params }) => {
     fetchData();
   }, [fetchData]);
 
-  const qr = createQR(`solana:${SERVER}/api/mint`, 250, "white", "black");
+  const qr = createQR(
+    `solana:${SERVER}/api/mint?collection=${collection?.address?.toBase58()}&authority=${dispenserAccount?.creator?.toBase58()}`,
+    250,
+    "white",
+    "black"
+  );
+
   const qrRef = useRef<HTMLDivElement>();
   if (qrRef.current) {
     qrRef.current.innerHTML = "";
