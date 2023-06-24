@@ -50,7 +50,7 @@ const Dispenser: React.FC<Props> = ({ params }) => {
     fetchData();
   }, [fetchData]);
 
-  const qr = createQR(`${SERVER}/api/mint`, 250, "white", "black");
+  const qr = createQR(`solana:${SERVER}/api/mint`, 250, "white", "black");
   const qrRef = useRef<HTMLDivElement>();
   if (qrRef.current) {
     qrRef.current.innerHTML = "";
