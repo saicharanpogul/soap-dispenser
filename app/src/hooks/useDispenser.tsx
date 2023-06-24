@@ -7,7 +7,7 @@ import {
   sleep,
 } from "@/utils";
 import { SoapDispenserProgram } from "@/utils/programs";
-import { Metaplex } from "@metaplex-foundation/js";
+import { Metaplex, toBigNumber } from "@metaplex-foundation/js";
 import {
   SPL_ACCOUNT_COMPRESSION_PROGRAM_ID,
   SPL_NOOP_PROGRAM_ID,
@@ -21,6 +21,7 @@ import { useConnection, useWallet } from "@solana/wallet-adapter-react";
 import {
   Connection,
   Keypair,
+  LAMPORTS_PER_SOL,
   PublicKey,
   SystemProgram,
   Transaction,
@@ -73,6 +74,11 @@ const useDispenser = () => {
         );
         const treeAuthority = soapDispenser.findTreeAuthorityPda(
           merkleTree.publicKey
+        );
+        const pot = soapDispenser.findPotPda(
+          authority,
+          dispenser,
+          collectionMint.publicKey
         );
         const collectionAuthorityRecord = metaplex
           .nfts()
@@ -155,9 +161,24 @@ const useDispenser = () => {
         initTx.partialSign(merkleTree);
         initTx.verifySignatures(false);
 
+        // TODO:
+        const fundPotTx = await soapDispenser.program.methods
+          .fundPot(toBigNumber(0.5 * LAMPORTS_PER_SOL))
+          .accounts({
+            pot,
+            dispenser,
+            authority,
+            collectionMint: collectionMint.publicKey,
+          })
+          .transaction();
+        fundPotTx.feePayer = authority;
+        fundPotTx.recentBlockhash = latestBlockhash.blockhash;
+        fundPotTx.verifySignatures(false);
+
         const signedTxs = (await signAllTransactions([
           createCollectionTx,
           initTx,
+          fundPotTx,
         ])) as Transaction[];
         createCollectionTx.verifySignatures(true);
         initTx.verifySignatures(true);
@@ -182,8 +203,18 @@ const useDispenser = () => {
             verifySignatures: true,
           })
         );
-
         console.log("Init:", getUrls(NETWORK, initSig, "tx").explorer);
+
+        await sleep(2);
+
+        const fundPotSig = await connection.sendRawTransaction(
+          signedTxs[2].serialize({
+            requireAllSignatures: true,
+            verifySignatures: true,
+          })
+        );
+
+        console.log("Fund Pot:", getUrls(NETWORK, fundPotSig, "tx").explorer);
         console.log("Dispenser:", dispenser.toBase58());
         console.log("Collection Mint:", collectionMint.publicKey.toBase58());
         return { dispenser, collectionMint: collectionMint.publicKey };
