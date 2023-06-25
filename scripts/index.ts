@@ -31,7 +31,7 @@ export const network = AnchorProvider.env().connection.rpcEndpoint;
 export const SOAP_DISPENSER_PROGRAM_ADDRESS = idl.metadata.address
   ? // @ts-ignore
     new PublicKey(idl?.metadata.address)
-  : new PublicKey("SDGQRX2DBX3qDNjEnEyryXFsGj2Sq6NXJd2SmZ3kfJ6");
+  : new PublicKey("sdp7bhcJ2TmGuHVqYNYFXLdSCNtqBu8heVoyYavkpyb");
 
 export const POT_PREFIX = "pot";
 

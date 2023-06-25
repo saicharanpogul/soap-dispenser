@@ -31,6 +31,34 @@ export type SoapDispenser = {
         ]
       },
       "value": "[153 , 18 , 178 , 47 , 197 , 158 , 86 , 15]"
+    },
+    {
+      "name": "MAX_NAME_LENGTH",
+      "type": {
+        "defined": "usize"
+      },
+      "value": "32"
+    },
+    {
+      "name": "MAX_SYMBOL_LENGTH",
+      "type": {
+        "defined": "usize"
+      },
+      "value": "10"
+    },
+    {
+      "name": "MAX_URI_LENGTH",
+      "type": {
+        "defined": "usize"
+      },
+      "value": "200"
+    },
+    {
+      "name": "MAX_SOAP_DETAILS_SIZE",
+      "type": {
+        "defined": "usize"
+      },
+      "value": "4 + MAX_NAME_LENGTH + 4 + MAX_SYMBOL_LENGTH + 4 + MAX_URI_LENGTH + 2"
     }
   ],
   "instructions": [
@@ -687,6 +715,34 @@ export const IDL: SoapDispenser = {
         ]
       },
       "value": "[153 , 18 , 178 , 47 , 197 , 158 , 86 , 15]"
+    },
+    {
+      "name": "MAX_NAME_LENGTH",
+      "type": {
+        "defined": "usize"
+      },
+      "value": "32"
+    },
+    {
+      "name": "MAX_SYMBOL_LENGTH",
+      "type": {
+        "defined": "usize"
+      },
+      "value": "10"
+    },
+    {
+      "name": "MAX_URI_LENGTH",
+      "type": {
+        "defined": "usize"
+      },
+      "value": "200"
+    },
+    {
+      "name": "MAX_SOAP_DETAILS_SIZE",
+      "type": {
+        "defined": "usize"
+      },
+      "value": "4 + MAX_NAME_LENGTH + 4 + MAX_SYMBOL_LENGTH + 4 + MAX_URI_LENGTH + 2"
     }
   ],
   "instructions": [

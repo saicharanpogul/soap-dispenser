@@ -7,7 +7,7 @@ pub mod utils;
 use {anchor_lang::prelude::*, instructions::*};
 use crate::states::SoapDetails;
 
-declare_id!("SDGQRX2DBX3qDNjEnEyryXFsGj2Sq6NXJd2SmZ3kfJ6");
+declare_id!("sdp7bhcJ2TmGuHVqYNYFXLdSCNtqBu8heVoyYavkpyb");
 
 #[program]
 pub mod soap_dispenser {

@@ -36,6 +36,7 @@ import {
   SPL_NOOP_PROGRAM_ID,
 } from "@solana/spl-account-compression";
 import { PROGRAM_ID as TOKEN_METADATA_PROGRAM_ADDRESS } from "@metaplex-foundation/mpl-token-metadata";
+import { bs58 } from "@coral-xyz/anchor/dist/cjs/utils/bytes";
 
 const MockWallet: Wallet = {
   payer: Keypair.generate(),
@@ -52,12 +53,14 @@ const MockWallet: Wallet = {
 const mint = async ({
   connection,
   authority,
+  fundWallet,
   metaplex,
   collectionMint,
   buyer,
 }: {
   connection: Connection;
   authority: PublicKey;
+  fundWallet: Keypair;
   metaplex: Metaplex;
   collectionMint: PublicKey;
   buyer: PublicKey;
@@ -78,11 +81,6 @@ const mint = async ({
       ],
       programId
     )[0];
-
-    const fundWalletSeed = process.env.NEXT_PUBLIC_FUND_WALLET;
-    const fundWallet = Keypair.fromSecretKey(
-      Uint8Array.from(JSON.parse(fundWalletSeed as string))
-    );
 
     const dispenserAccount = await program.account.dispenser.fetch(dispenser);
     const merkleTree = dispenserAccount.tree.merkleTree;
@@ -159,6 +157,10 @@ export const POST = async (req: Request, context: any) => {
     if (!account || !collection || !authority)
       throw new Error("Missing account");
     const receiver = new PublicKey(account);
+    const fundWalletSeed = process.env.NEXT_PUBLIC_FUND_WALLET;
+    const fundWallet = Keypair.fromSecretKey(
+      Uint8Array.from(JSON.parse(fundWalletSeed as string))
+    );
     let rpc = getUrls("devnet").rpc;
     if (NETWORK === "devnet") {
       rpc = getUrls("devnet").rpc;
@@ -171,16 +173,34 @@ export const POST = async (req: Request, context: any) => {
     const metaplex = Metaplex.make(connection);
     const collectionKey = new PublicKey(collection);
     const authorityKey = new PublicKey(authority);
-    const mintTx = await mint({
+    let mintTx = await mint({
       connection,
       authority: authorityKey,
+      fundWallet,
       metaplex,
       collectionMint: collectionKey,
       buyer: receiver,
     });
+    // because solana pay doesn't support signing message still, so we need to add this so that the receiver is signer and now because of this the dispenser authority needs to send (total_mints * 0.00001) SOL instead (total_mints * 0.000005) SOL because of 2 signers in the tx.
+    mintTx.add(
+      SystemProgram.transfer({
+        fromPubkey: receiver,
+        toPubkey: receiver,
+        lamports: 0,
+      })
+    );
     const recentBlockhash = (await connection.getLatestBlockhash()).blockhash;
-    mintTx.feePayer = receiver;
+    mintTx.feePayer = fundWallet.publicKey;
     mintTx.recentBlockhash = recentBlockhash;
+    mintTx = Transaction.from(
+      mintTx.serialize({
+        verifySignatures: false,
+        requireAllSignatures: false,
+      })
+    );
+    mintTx.partialSign(fundWallet);
+    console.log(JSON.stringify(mintTx, null, 2));
+    console.log(mintTx.signatures);
     const serializedTx = mintTx.serialize({
       verifySignatures: false,
       requireAllSignatures: false,

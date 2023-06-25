@@ -99,8 +99,6 @@ const ReviewStep: React.FC<Props> = ({
       setPrice(_price / LAMPORTS_PER_SOL);
     } catch (error: any) {
       console.log(error);
-      console.log("log", error.log);
-      console.log("logs", error.logs);
       toast({
         title: "Unable to fetch price",
         status: "error",
@@ -136,6 +134,7 @@ const ReviewStep: React.FC<Props> = ({
       reset();
     } catch (error: any) {
       console.log(error);
+      console.log("logs", error.logs);
       toast({
         title: "Something went wrong",
         status: "error",
@@ -185,9 +184,9 @@ const ReviewStep: React.FC<Props> = ({
           isLoading={isLoading}
         />
         <InfoPair
-          title="Transfer"
+          title="Transfer (For Free Mint)"
           value={`~${
-            (2 ** data?.treeConfig?.tree?.maxDepth * 5000) / LAMPORTS_PER_SOL
+            (2 ** data?.treeConfig?.tree?.maxDepth * 10000) / LAMPORTS_PER_SOL
           } SOL`}
           isLoading={isLoading}
         />

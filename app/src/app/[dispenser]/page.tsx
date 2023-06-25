@@ -25,13 +25,13 @@ const Dispenser: React.FC<Props> = ({ params }) => {
   const [collection, setCollection] = useState<
     Sft | SftWithToken | Nft | NftWithToken
   >();
-  const { fetctDispenser } = useDispenser();
+  const { fetchDispenser } = useDispenser();
   const { metaplex } = useMetaplex();
 
   const fetchData = useCallback(async () => {
     try {
       if (!dispenser || !metaplex) return;
-      const _dispenserAccount = await fetctDispenser(new PublicKey(dispenser));
+      const _dispenserAccount = await fetchDispenser(new PublicKey(dispenser));
       setDispenserAccount(_dispenserAccount);
       const _collection = await metaplex.nfts().findByMint({
         mintAddress: _dispenserAccount?.collectionMint as PublicKey,
@@ -44,7 +44,7 @@ const Dispenser: React.FC<Props> = ({ params }) => {
     } finally {
       setIsLoading(false);
     }
-  }, [dispenser, fetctDispenser]);
+  }, [dispenser, fetchDispenser]);
 
   useEffect(() => {
     fetchData();

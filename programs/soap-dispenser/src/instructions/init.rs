@@ -67,7 +67,7 @@ pub fn init_handler(
 ) -> Result<()> {
     let base: u32 = 2;
     let total_mints: u64 = base.pow(max_depth).try_into().unwrap();
-    let fee_price = total_mints.mul(5000);
+    let fee_price = total_mints.mul(10000);
     let balance = **ctx.accounts.authority.try_borrow_mut_lamports()?;
 
     if balance.le(&fee_price) {

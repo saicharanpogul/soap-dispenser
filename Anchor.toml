@@ -1,14 +1,14 @@
 [features]
 seeds = false
 skip-lint = false
-[programs.localnet]
-soap_dispenser = "SDGQRX2DBX3qDNjEnEyryXFsGj2Sq6NXJd2SmZ3kfJ6"
+[programs.devnet]
+soap_dispenser = "sdp7bhcJ2TmGuHVqYNYFXLdSCNtqBu8heVoyYavkpyb"
 
 [registry]
 url = "https://api.apr.dev"
 
 [provider]
-cluster = "Localnet"
+cluster = "Devnet"
 wallet = "id.json"
 
 [scripts]
@@ -20,3 +20,4 @@ mint = "ts-node ./scripts/mint.ts"
 get-asset = "ts-node ./scripts/getAsset.ts"
 fund-pot = "ts-node ./scripts/fundPot.ts"
 withdraw-pot = "ts-node ./scripts/withdrawPot.ts"
+get-dispensers = "ts-node ./scripts/getDispensers.ts"

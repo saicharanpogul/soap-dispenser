@@ -3,8 +3,10 @@ import { Flex, Image, Text } from "@chakra-ui/react";
 import React from "react";
 import ConnectWalletButton from "./ConnectWalletButton";
 import { useRouter } from "next/navigation";
+import { useWallet } from "@solana/wallet-adapter-react";
 
 const Navbar = () => {
+  const { publicKey, connected } = useWallet();
   const router = useRouter();
   return (
     <Flex
@@ -31,7 +33,22 @@ const Navbar = () => {
           cSOAP
         </Text>
       </Flex>
-      <ConnectWalletButton />
+      <Flex alignItems={"center"}>
+        {connected && (
+          <Text
+            color={"text.900"}
+            fontWeight={"semibold"}
+            mr="4"
+            display={["none", "none", "initial"]}
+            onClick={() => router.push(`/dashboard/${publicKey?.toBase58()}`)}
+            cursor={"pointer"}
+            fontSize={"14"}
+          >
+            Dashboard
+          </Text>
+        )}
+        <ConnectWalletButton />
+      </Flex>
     </Flex>
   );
 };

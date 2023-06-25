@@ -169,8 +169,8 @@ const useDispenser = () => {
               collectionMetadata,
               treeAuthority,
               merkleTree: merkleTree.publicKey,
-              systemProgram: SystemProgram.programId,
               fundWallet: fundWallet.publicKey,
+              systemProgram: SystemProgram.programId,
               tokenProgram: TOKEN_PROGRAM_ID,
               associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
               bubblegumProgram: BUBBLEGUM_PROGRAM_ID,
@@ -227,7 +227,7 @@ const useDispenser = () => {
     [connected, connection, metaplex, publicKey, signAllTransactions]
   );
 
-  const fetctDispenser = useCallback(async (dispenser: PublicKey) => {
+  const fetchDispenser = useCallback(async (dispenser: PublicKey) => {
     try {
       const soapDispenser = new SoapDispenserProgram();
       const dispenserAccount =
@@ -238,7 +238,27 @@ const useDispenser = () => {
     }
   }, []);
 
-  return { init, fetctDispenser };
+  const fetchDispensers = useCallback(async () => {
+    try {
+      if (!publicKey || !connected || !connection || !metaplex) return [];
+
+      const soapDispenser = new SoapDispenserProgram();
+      const dispensers = await soapDispenser.program.account.dispenser.all([
+        {
+          memcmp: {
+            offset: 8,
+            bytes: publicKey.toBase58(),
+          },
+        },
+      ]);
+      console.log(dispensers);
+      return dispensers;
+    } catch (error) {
+      console.log(error);
+    }
+  }, [connected, connection, metaplex, publicKey]);
+
+  return { init, fetchDispenser, fetchDispensers };
 };
 
 export default useDispenser;

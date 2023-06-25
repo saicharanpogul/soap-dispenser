@@ -1,5 +1,5 @@
 export const SOAP_DISPENSER_PROGRAM_ID =
-  "SDGQRX2DBX3qDNjEnEyryXFsGj2Sq6NXJd2SmZ3kfJ6";
+  "sdp7bhcJ2TmGuHVqYNYFXLdSCNtqBu8heVoyYavkpyb";
 
 export const BUBBLEGUM_PROGRAM_ID =
   "BGUMAp9Gq7iTEuizy4pqaxsTyUCBK68MDfK752saRPUY";

@@ -13,6 +13,24 @@ pub const CREATE_TREE_DISCRIMINATOR: [u8; 8] = [165, 83, 136, 142, 89, 202, 47, 
 #[constant]
 pub const MINT_TO_COLLECTION_V1_DISCRIMINATOR: [u8; 8] = [153, 18, 178, 47, 197, 158, 86, 15];
 
+#[constant]
+pub const MAX_NAME_LENGTH: usize = 32;
+
+#[constant]
+pub const MAX_SYMBOL_LENGTH: usize = 10;
+
+#[constant]
+pub const MAX_URI_LENGTH: usize = 200;
+
+#[constant]
+pub const MAX_SOAP_DETAILS_SIZE: usize = 4 
+    + MAX_NAME_LENGTH
+    + 4
+    + MAX_SYMBOL_LENGTH
+    + 4
+    + MAX_URI_LENGTH
+    + 2;
+
 #[derive(AnchorSerialize, AnchorDeserialize, PartialEq, Eq, Debug, Clone)]
 pub struct SDCreator {
     pub address: Pubkey,

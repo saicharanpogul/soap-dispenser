@@ -28,6 +28,7 @@ import { NETWORK, truncateAddress } from "@/utils";
 import { getAccessKey } from "@/api";
 import { useDispatch } from "react-redux";
 import { setSignature } from "@/state/signatureSlice";
+import { useRouter } from "next/navigation";
 
 interface WithChildren {
   children: React.ReactNode;
@@ -62,6 +63,7 @@ const ConnectWalletButton: React.FC<Props> = ({
   const isWindowContext = typeof window !== "undefined";
   const origin = isWindowContext && window.origin;
   const dispatch = useDispatch();
+  const router = useRouter();
 
   useEffect(() => {}, [isPhantom]);
 
@@ -217,6 +219,17 @@ const ConnectWalletButton: React.FC<Props> = ({
               justifyContent={"center"}
               flexDirection="column"
             >
+              <Button
+                width={"full"}
+                variant="unstyled"
+                color={"text.900"}
+                onClick={() =>
+                  router.push(`/dashboard/${publicKey?.toBase58()}`)
+                }
+              >
+                Dashboard
+              </Button>
+              <Divider />
               <Button
                 width={"full"}
                 variant="unstyled"
