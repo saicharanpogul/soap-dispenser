@@ -140,7 +140,6 @@ const TreeConfigStep: React.FC<Props> = ({ data, setData, setActiveStep }) => {
                   }
                 )
               );
-              console.log("aa", options[index]);
               return index;
             })()}
           />

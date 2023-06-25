@@ -55,14 +55,12 @@ const mint = async ({
   metaplex,
   collectionMint,
   buyer,
-  metadataArgs,
 }: {
   connection: Connection;
   authority: PublicKey;
   metaplex: Metaplex;
   collectionMint: PublicKey;
   buyer: PublicKey;
-  metadataArgs: MetadataArgs;
 }) => {
   try {
     const programId = new PublicKey(SOAP_DISPENSER_PROGRAM_ID);
@@ -81,15 +79,10 @@ const mint = async ({
       programId
     )[0];
 
-    const pot = PublicKey.findProgramAddressSync(
-      [
-        Buffer.from(POT_PREFIX),
-        authority.toBuffer(),
-        dispenser.toBuffer(),
-        collectionMint.toBuffer(),
-      ],
-      programId
-    )[0];
+    const fundWalletSeed = process.env.NEXT_PUBLIC_FUND_WALLET;
+    const fundWallet = Keypair.fromSecretKey(
+      Uint8Array.from(JSON.parse(fundWalletSeed as string))
+    );
 
     const dispenserAccount = await program.account.dispenser.fetch(dispenser);
     const merkleTree = dispenserAccount.tree.merkleTree;
@@ -112,43 +105,11 @@ const mint = async ({
       new PublicKey(BUBBLEGUM_PROGRAM_ID)
     );
 
-    const creators = [
-      metadataArgs.creators,
-      {
-        address: dispenser,
-        share: 100,
-        verified: true,
-      },
-    ];
-
     const mintTx = await program.methods
-      // @ts-ignore
-      .mint({
-        metadata: {
-          name: metadataArgs.name,
-          symbol: metadataArgs.symbol,
-          uri: metadataArgs.uri,
-          sellerFeeBasisPoints: metadataArgs.sellerFeeBasisPoints,
-          primarySaleHappened: metadataArgs.primarySaleHappened,
-          isMutable: metadataArgs.isMutable,
-          editionNonce: metadataArgs.editionNonce,
-          tokenStandard: getTokenStandard(
-            metadataArgs.tokenStandard as TokenStandard
-          ),
-          collection: {
-            key: metadataArgs.collection?.key,
-            verified: metadataArgs.collection?.verified,
-          },
-          uses: metadataArgs.uses,
-          tokenProgramVersion: getTokenProgramVersion(
-            metadataArgs.tokenProgramVersion
-          ),
-          creators: metadataArgs.creators,
-        },
-      })
+      .mint()
       .accounts({
         dispenser,
-        pot,
+        payer: fundWallet.publicKey,
         treeAuthority,
         leafOwner: buyer,
         leafDelegate: buyer,
@@ -166,7 +127,7 @@ const mint = async ({
         compressionProgram: SPL_ACCOUNT_COMPRESSION_PROGRAM_ID,
         systemProgram: SystemProgram.programId,
       })
-      .signers([])
+      .signers([fundWallet])
       .transaction();
 
     return mintTx;
@@ -216,29 +177,6 @@ export const POST = async (req: Request, context: any) => {
       metaplex,
       collectionMint: collectionKey,
       buyer: receiver,
-      metadataArgs: {
-        name: "First cNFT",
-        symbol: "cNFT",
-        uri: "https://arweave.net/mo4NBHmhuCt9ZjJ6jykMgKw-te0uTdgDBkBjVAJ-v20",
-        sellerFeeBasisPoints: 500,
-        primarySaleHappened: false,
-        isMutable: true,
-        creators: [
-          {
-            address: authorityKey,
-            share: 100,
-            verified: false,
-          },
-        ],
-        collection: {
-          key: collectionKey,
-          verified: false,
-        },
-        editionNonce: null,
-        tokenProgramVersion: TokenProgramVersion.Original,
-        tokenStandard: TokenStandard.NonFungible,
-        uses: null,
-      },
     });
     const recentBlockhash = (await connection.getLatestBlockhash()).blockhash;
     mintTx.feePayer = receiver;

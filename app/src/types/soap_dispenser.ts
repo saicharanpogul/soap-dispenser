@@ -73,6 +73,11 @@ export type SoapDispenser = {
           "isSigner": false
         },
         {
+          "name": "fundWallet",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
           "name": "systemProgram",
           "isMut": false,
           "isSigner": false
@@ -116,6 +121,12 @@ export type SoapDispenser = {
         {
           "name": "maxBufferSize",
           "type": "u32"
+        },
+        {
+          "name": "soapDetails",
+          "type": {
+            "defined": "SoapDetails"
+          }
         },
         {
           "name": "public",
@@ -182,7 +193,7 @@ export type SoapDispenser = {
           "isSigner": false
         },
         {
-          "name": "pot",
+          "name": "payer",
           "isMut": true,
           "isSigner": false
         },
@@ -271,14 +282,7 @@ export type SoapDispenser = {
           "isSigner": false
         }
       ],
-      "args": [
-        {
-          "name": "mintArgs",
-          "type": {
-            "defined": "MintArgs"
-          }
-        }
-      ]
+      "args": []
     },
     {
       "name": "withdrawPot",
@@ -330,6 +334,12 @@ export type SoapDispenser = {
           {
             "name": "collectionMint",
             "type": "publicKey"
+          },
+          {
+            "name": "soapDetails",
+            "type": {
+              "defined": "SoapDetails"
+            }
           },
           {
             "name": "startDate",
@@ -550,6 +560,30 @@ export type SoapDispenser = {
       }
     },
     {
+      "name": "SoapDetails",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "name",
+            "type": "string"
+          },
+          {
+            "name": "symbol",
+            "type": "string"
+          },
+          {
+            "name": "uri",
+            "type": "string"
+          },
+          {
+            "name": "sellerFeeBasisPoints",
+            "type": "u16"
+          }
+        ]
+      }
+    },
+    {
       "name": "SDTokenProgramVersion",
       "type": {
         "kind": "enum",
@@ -604,8 +638,8 @@ export type SoapDispenser = {
   "errors": [
     {
       "code": 6000,
-      "name": "InsufficientFundsInPot",
-      "msg": "Insufficient funds in Pot"
+      "name": "InsufficientFunds",
+      "msg": "Insufficient funds"
     },
     {
       "code": 6001,
@@ -695,6 +729,11 @@ export const IDL: SoapDispenser = {
           "isSigner": false
         },
         {
+          "name": "fundWallet",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
           "name": "systemProgram",
           "isMut": false,
           "isSigner": false
@@ -738,6 +777,12 @@ export const IDL: SoapDispenser = {
         {
           "name": "maxBufferSize",
           "type": "u32"
+        },
+        {
+          "name": "soapDetails",
+          "type": {
+            "defined": "SoapDetails"
+          }
         },
         {
           "name": "public",
@@ -804,7 +849,7 @@ export const IDL: SoapDispenser = {
           "isSigner": false
         },
         {
-          "name": "pot",
+          "name": "payer",
           "isMut": true,
           "isSigner": false
         },
@@ -893,14 +938,7 @@ export const IDL: SoapDispenser = {
           "isSigner": false
         }
       ],
-      "args": [
-        {
-          "name": "mintArgs",
-          "type": {
-            "defined": "MintArgs"
-          }
-        }
-      ]
+      "args": []
     },
     {
       "name": "withdrawPot",
@@ -952,6 +990,12 @@ export const IDL: SoapDispenser = {
           {
             "name": "collectionMint",
             "type": "publicKey"
+          },
+          {
+            "name": "soapDetails",
+            "type": {
+              "defined": "SoapDetails"
+            }
           },
           {
             "name": "startDate",
@@ -1172,6 +1216,30 @@ export const IDL: SoapDispenser = {
       }
     },
     {
+      "name": "SoapDetails",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "name",
+            "type": "string"
+          },
+          {
+            "name": "symbol",
+            "type": "string"
+          },
+          {
+            "name": "uri",
+            "type": "string"
+          },
+          {
+            "name": "sellerFeeBasisPoints",
+            "type": "u16"
+          }
+        ]
+      }
+    },
+    {
       "name": "SDTokenProgramVersion",
       "type": {
         "kind": "enum",
@@ -1226,8 +1294,8 @@ export const IDL: SoapDispenser = {
   "errors": [
     {
       "code": 6000,
-      "name": "InsufficientFundsInPot",
-      "msg": "Insufficient funds in Pot"
+      "name": "InsufficientFunds",
+      "msg": "Insufficient funds"
     },
     {
       "code": 6001,

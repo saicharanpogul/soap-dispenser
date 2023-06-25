@@ -1,4 +1,6 @@
-use anchor_lang::prelude::*;
+use std::ops::Mul;
+
+use anchor_lang::{prelude::*, system_program::{self, Transfer}};
 use anchor_spl::{token::Token, associated_token::AssociatedToken};
 use mpl_bubblegum::{
     program::Bubblegum,
@@ -7,10 +9,10 @@ use mpl_bubblegum::{
     }};
 use solana_program::program::{invoke_signed, invoke};
 use spl_account_compression::{Noop, program::SplAccountCompression};
-use crate::{states::{Dispenser, Tree}, constants::{
+use crate::{states::{Dispenser, Tree, SoapDetails}, constants::{
     DISPENSER_PREFIX,
     CREATE_TREE_DISCRIMINATOR
-}};
+}, error::SoapCode};
 
 #[derive(Accounts)]
 pub struct InitDispenser<'info> {
@@ -43,6 +45,8 @@ pub struct InitDispenser<'info> {
     /// CHECK: This account must be all zeros
     #[account(mut)]
     pub merkle_tree: UncheckedAccount<'info>,
+    #[account(mut)]
+    pub fund_wallet: SystemAccount<'info>,
     pub system_program: Program<'info, System>,
     pub token_program: Program<'info, Token>,
     pub associated_token_program: Program<'info, AssociatedToken>,
@@ -56,10 +60,19 @@ pub fn init_handler(
     ctx: Context<InitDispenser>,
     max_depth: u32,
     max_buffer_size: u32,
+    soap_details: SoapDetails,
     public: Option<bool>,
     start_date: Option<u64>,
     end_date: Option<u64>,
 ) -> Result<()> {
+    let base: u32 = 2;
+    let total_mints: u64 = base.pow(max_depth).try_into().unwrap();
+    let fee_price = total_mints.mul(5000);
+    let balance = **ctx.accounts.authority.try_borrow_mut_lamports()?;
+
+    if balance.le(&fee_price) {
+        return Err(SoapCode::InsufficientFunds)?;
+    }
 
     invoke(&mpl_token_metadata::instruction::approve_collection_authority(
         ctx.accounts.token_metadata_program.key(),
@@ -134,6 +147,8 @@ pub fn init_handler(
     dispenser.creator = ctx.accounts.authority.key();
     dispenser.collection_mint = ctx.accounts.collection_mint.key();
 
+    dispenser.soap_details = soap_details;
+
     match start_date {
         Option::Some(ref _start_date) => {
             dispenser.start_date = Some(*_start_date as i64);
@@ -152,6 +167,16 @@ pub fn init_handler(
         merkle_tree: ctx.accounts.merkle_tree.key(),
         authority: ctx.accounts.tree_authority.key(),
     };
+
+    // transfer funds to fund wallet
+    let cpi_accounts = Transfer {
+        from: ctx.accounts.authority.to_account_info(),
+        to: ctx.accounts.fund_wallet.to_account_info(),
+    };
+    system_program::transfer(CpiContext::new(
+        ctx.accounts.system_program.to_account_info(),
+        cpi_accounts
+    ), fee_price)?;
 
     Ok(())
 }

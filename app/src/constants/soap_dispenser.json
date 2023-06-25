@@ -73,6 +73,11 @@
           "isSigner": false
         },
         {
+          "name": "fundWallet",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
           "name": "systemProgram",
           "isMut": false,
           "isSigner": false
@@ -116,6 +121,12 @@
         {
           "name": "maxBufferSize",
           "type": "u32"
+        },
+        {
+          "name": "soapDetails",
+          "type": {
+            "defined": "SoapDetails"
+          }
         },
         {
           "name": "public",
@@ -182,7 +193,7 @@
           "isSigner": false
         },
         {
-          "name": "pot",
+          "name": "payer",
           "isMut": true,
           "isSigner": false
         },
@@ -271,14 +282,7 @@
           "isSigner": false
         }
       ],
-      "args": [
-        {
-          "name": "mintArgs",
-          "type": {
-            "defined": "MintArgs"
-          }
-        }
-      ]
+      "args": []
     },
     {
       "name": "withdrawPot",
@@ -330,6 +334,12 @@
           {
             "name": "collectionMint",
             "type": "publicKey"
+          },
+          {
+            "name": "soapDetails",
+            "type": {
+              "defined": "SoapDetails"
+            }
           },
           {
             "name": "startDate",
@@ -550,6 +560,30 @@
       }
     },
     {
+      "name": "SoapDetails",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "name",
+            "type": "string"
+          },
+          {
+            "name": "symbol",
+            "type": "string"
+          },
+          {
+            "name": "uri",
+            "type": "string"
+          },
+          {
+            "name": "sellerFeeBasisPoints",
+            "type": "u16"
+          }
+        ]
+      }
+    },
+    {
       "name": "SDTokenProgramVersion",
       "type": {
         "kind": "enum",
@@ -604,8 +638,8 @@
   "errors": [
     {
       "code": 6000,
-      "name": "InsufficientFundsInPot",
-      "msg": "Insufficient funds in Pot"
+      "name": "InsufficientFunds",
+      "msg": "Insufficient funds"
     },
     {
       "code": 6001,

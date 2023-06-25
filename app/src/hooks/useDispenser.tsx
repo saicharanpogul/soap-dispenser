@@ -43,14 +43,27 @@ const useDispenser = () => {
 
   const init = useCallback(
     async ({
+      collection,
       maxDepth,
       maxBufferSize,
+      soapDetails,
       isPublic,
       startDate,
       endDate,
     }: {
+      collection: {
+        name: string;
+        symbol: string;
+        uri: string;
+      };
       maxDepth: number;
       maxBufferSize: number;
+      soapDetails: {
+        name: string;
+        symbol: string;
+        uri: string;
+        sellerFeeBasisPoints: number;
+      };
       isPublic: boolean;
       startDate: BN | null;
       endDate: BN | null;
@@ -64,6 +77,10 @@ const useDispenser = () => {
           !signAllTransactions
         )
           return;
+        const fundWalletSeed = process.env.NEXT_PUBLIC_FUND_WALLET;
+        const fundWallet = Keypair.fromSecretKey(
+          Uint8Array.from(JSON.parse(fundWalletSeed as string))
+        );
         const authority = publicKey;
         const collectionMint = Keypair.generate();
         const merkleTree = Keypair.generate();
@@ -74,11 +91,6 @@ const useDispenser = () => {
         );
         const treeAuthority = soapDispenser.findTreeAuthorityPda(
           merkleTree.publicKey
-        );
-        const pot = soapDispenser.findPotPda(
-          authority,
-          dispenser,
-          collectionMint.publicKey
         );
         const collectionAuthorityRecord = metaplex
           .nfts()
@@ -95,9 +107,9 @@ const useDispenser = () => {
         const latestBlockhash = await connection.getLatestBlockhash();
 
         const createCollection = await metaplex.nfts().builders().create({
-          name: "First cNFT Collection",
-          symbol: "SOAP",
-          uri: "https://arweave.net/mo4NBHmhuCt9ZjJ6jykMgKw-te0uTdgDBkBjVAJ-v20",
+          name: collection.name,
+          symbol: collection.symbol,
+          uri: collection.uri,
           sellerFeeBasisPoints: 0,
           useNewMint: collectionMint,
           collectionIsSized: true,
@@ -136,7 +148,19 @@ const useDispenser = () => {
         );
         initTx.add(
           await soapDispenser.program.methods
-            .init(maxDepth, maxBufferSize, isPublic, startDate, endDate)
+            .init(
+              maxDepth,
+              maxBufferSize,
+              {
+                name: soapDetails.name,
+                symbol: soapDetails.symbol,
+                uri: soapDetails.uri,
+                sellerFeeBasisPoints: soapDetails.sellerFeeBasisPoints,
+              },
+              isPublic,
+              startDate,
+              endDate
+            )
             .accounts({
               dispenser,
               authority,
@@ -146,6 +170,7 @@ const useDispenser = () => {
               treeAuthority,
               merkleTree: merkleTree.publicKey,
               systemProgram: SystemProgram.programId,
+              fundWallet: fundWallet.publicKey,
               tokenProgram: TOKEN_PROGRAM_ID,
               associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
               bubblegumProgram: BUBBLEGUM_PROGRAM_ID,
@@ -161,24 +186,9 @@ const useDispenser = () => {
         initTx.partialSign(merkleTree);
         initTx.verifySignatures(false);
 
-        // TODO:
-        const fundPotTx = await soapDispenser.program.methods
-          .fundPot(toBigNumber(0.5 * LAMPORTS_PER_SOL))
-          .accounts({
-            pot,
-            dispenser,
-            authority,
-            collectionMint: collectionMint.publicKey,
-          })
-          .transaction();
-        fundPotTx.feePayer = authority;
-        fundPotTx.recentBlockhash = latestBlockhash.blockhash;
-        fundPotTx.verifySignatures(false);
-
         const signedTxs = (await signAllTransactions([
           createCollectionTx,
           initTx,
-          fundPotTx,
         ])) as Transaction[];
         createCollectionTx.verifySignatures(true);
         initTx.verifySignatures(true);
@@ -207,14 +217,6 @@ const useDispenser = () => {
 
         await sleep(2);
 
-        const fundPotSig = await connection.sendRawTransaction(
-          signedTxs[2].serialize({
-            requireAllSignatures: true,
-            verifySignatures: true,
-          })
-        );
-
-        console.log("Fund Pot:", getUrls(NETWORK, fundPotSig, "tx").explorer);
         console.log("Dispenser:", dispenser.toBase58());
         console.log("Collection Mint:", collectionMint.publicKey.toBase58());
         return { dispenser, collectionMint: collectionMint.publicKey };

@@ -72,10 +72,7 @@ const Dispenser: React.FC<Props> = ({ params }) => {
         position={"absolute"}
         overflow={"hidden"}
         zIndex={0}
-        bgImage={
-          "https://nftstorage.link/ipfs/bafybeid27xtt5lbdo2vmxar34lgsvxvmdvhalmq6ojuw4xuhs7zcbau6hi/6432.png"
-        }
-        // bgImage={collection?.json?.image}
+        bgImage={collection?.json?.image}
         bgPosition={"center"}
         backgroundSize={"cover"}
         backgroundRepeat={"no-repeat"}

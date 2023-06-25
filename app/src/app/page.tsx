@@ -35,6 +35,8 @@ import { useState } from "react";
 import TreeConfigStep from "@/components/TreeConfigStep";
 import ReviewStep from "@/components/ReviewStep";
 import useDispenser from "@/hooks/useDispenser";
+import useMetaplex from "@/hooks/useMetaplex";
+import { NETWORK } from "@/utils";
 
 const schema = yup.object().shape({
   name: yup.string().required("Name is required"),
@@ -77,6 +79,7 @@ export default function Home() {
   const [initConfig, setInitConfig] = useState(initialState);
   const toast = useToast();
   const { init } = useDispenser();
+  const { metaplex, uploadMetadata } = useMetaplex();
 
   const {
     activeStep,
@@ -92,9 +95,54 @@ export default function Home() {
   const initSoap = async () => {
     try {
       console.log(initConfig);
+      let collectionUri =
+        "https://arweave.net/gt_Lk3ZXQ8iaxjtbqvEe7kkmzJZxyh0lRv2Sk64QAVk";
+      if (NETWORK !== "localnet") {
+        collectionUri = (
+          await uploadMetadata(
+            initConfig.collection.image,
+            initConfig.collection.name,
+            initConfig.collection.description,
+            initConfig.collection.symbol
+          )
+        )[0];
+      }
+      toast({
+        title: "Collection Metadata Uploaded!",
+        status: "success",
+        duration: 3000,
+      });
+      let soapUri =
+        "https://arweave.net/Z9qa5gXUR-dKWyLiPoLAauV0K4D9y33zstuDi7CnfCw";
+      if (NETWORK !== "localnet") {
+        soapUri = (
+          await uploadMetadata(
+            initConfig.treeConfig.image,
+            initConfig.treeConfig.name,
+            initConfig.treeConfig.description,
+            initConfig.treeConfig.symbol
+          )
+        )[0];
+      }
+      toast({
+        title: "Soap Metadata Uploaded!",
+        status: "success",
+        duration: 3000,
+      });
       const result = await init({
+        collection: {
+          name: initConfig.collection.name,
+          symbol: initConfig.collection.symbol,
+          uri: collectionUri,
+        },
         maxDepth: initConfig.treeConfig.tree.maxDepth,
         maxBufferSize: initConfig.treeConfig.tree.maxBufferSize,
+        soapDetails: {
+          name: initConfig.treeConfig.name,
+          symbol: initConfig.treeConfig.symbol,
+          uri: soapUri,
+          sellerFeeBasisPoints: 0,
+        },
         endDate: null,
         startDate: null,
         isPublic: false,

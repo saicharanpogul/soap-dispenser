@@ -1,14 +1,14 @@
 [features]
 seeds = false
 skip-lint = false
-[programs.devnet]
+[programs.localnet]
 soap_dispenser = "SDGQRX2DBX3qDNjEnEyryXFsGj2Sq6NXJd2SmZ3kfJ6"
 
 [registry]
 url = "https://api.apr.dev"
 
 [provider]
-cluster = "Devnet"
+cluster = "Localnet"
 wallet = "id.json"
 
 [scripts]

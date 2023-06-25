@@ -7,6 +7,7 @@ import {
   Tooltip,
   useToast,
 } from "@chakra-ui/react";
+import { toBigNumber } from "@metaplex-foundation/js";
 import { getConcurrentMerkleTreeAccountSize } from "@solana/spl-account-compression";
 import { useConnection } from "@solana/wallet-adapter-react";
 import { LAMPORTS_PER_SOL, PublicKey } from "@solana/web3.js";
@@ -129,8 +130,8 @@ const ReviewStep: React.FC<Props> = ({
         duration: 5000,
         isClosable: true,
       });
-      reset();
       router.push(`/${dispenser}`);
+      reset();
     } catch (error: any) {
       console.log(error);
       toast({
@@ -181,8 +182,14 @@ const ReviewStep: React.FC<Props> = ({
           value={`~${price} SOL`}
           isLoading={isLoading}
         />
+        <InfoPair
+          title="Transfer"
+          value={`~${
+            (2 ** data?.treeConfig?.tree?.maxDepth * 5000) / LAMPORTS_PER_SOL
+          } SOL`}
+          isLoading={isLoading}
+        />
       </Flex>
-
       <Flex justifyContent={"space-between"} w="full">
         <Button
           mt="6"

@@ -37,13 +37,13 @@ export const mint = async ({
   metaplex,
   collectionMint,
   buyer,
-  metadataArgs,
+  payer,
 }: {
   authority: Keypair;
   metaplex: Metaplex;
   collectionMint: PublicKey;
-  buyer: Keypair;
-  metadataArgs: MetadataArgs;
+  buyer: PublicKey;
+  payer: Keypair;
 }) => {
   try {
     const { program, programId, provider, connection } = new Workspace(
@@ -75,45 +75,14 @@ export const mint = async ({
       [Buffer.from("collection_cpi", "utf8")],
       BUBBLEGUM_PROGRAM_ID
     );
-
-    const creators = [
-      metadataArgs.creators,
-      {
-        address: dispenser,
-        share: 100,
-        verified: true,
-      },
-    ];
-
     const mintTx = await program.methods
-      // @ts-ignore
-      .mint({
-        metadata: {
-          name: metadataArgs.name,
-          symbol: metadataArgs.symbol,
-          uri: metadataArgs.uri,
-          sellerFeeBasisPoints: metadataArgs.sellerFeeBasisPoints,
-          primarySaleHappened: metadataArgs.primarySaleHappened,
-          isMutable: metadataArgs.isMutable,
-          editionNonce: metadataArgs.editionNonce,
-          tokenStandard: getTokenStandard(metadataArgs.tokenStandard),
-          collection: {
-            key: metadataArgs.collection.key,
-            verified: metadataArgs.collection.verified,
-          },
-          uses: metadataArgs.uses,
-          tokenProgramVersion: getTokenProgramVersion(
-            metadataArgs.tokenProgramVersion
-          ),
-          creators: metadataArgs.creators,
-        },
-      })
+      .mint()
       .accounts({
         dispenser,
-        pot,
+        payer: payer.publicKey,
         treeAuthority,
-        leafOwner: buyer.publicKey,
-        leafDelegate: buyer.publicKey,
+        leafOwner: buyer,
+        leafDelegate: buyer,
         merkleTree: merkleTree,
         authority: authority.publicKey,
         treeDelegate: dispenser,
@@ -128,10 +97,10 @@ export const mint = async ({
         compressionProgram: SPL_ACCOUNT_COMPRESSION_PROGRAM_ID,
         systemProgram: SystemProgram.programId,
       })
-      .signers([buyer])
+      .signers([payer])
       .transaction();
 
-    const sig = await sendAndConfirmTransaction(connection, mintTx, [buyer], {
+    const sig = await sendAndConfirmTransaction(connection, mintTx, [payer], {
       commitment: "confirmed",
     });
 
@@ -145,6 +114,7 @@ const main = async () => {
   try {
     const authority = await initializeKeypair(connection, "soap_creator_1");
     const buyer = await initializeKeypair(connection, "buyer_1");
+    const payer = await initializeKeypair(connection, "fund_wallet");
     const metaplex = Metaplex.make(connection).use(keypairIdentity(authority));
     const metadataArgs: MetadataArgs = {
       name: "First cNFT",
@@ -172,9 +142,9 @@ const main = async () => {
     await mint({
       authority,
       metaplex,
-      buyer,
+      buyer: buyer.publicKey,
       collectionMint: new PublicKey(process.argv[2]),
-      metadataArgs,
+      payer,
     });
   } catch (error) {
     console.log(error);

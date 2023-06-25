@@ -43,17 +43,26 @@ import BN from "bn.js";
 
 export const init = async ({
   authority,
+  fundWallet,
   metaplex,
   maxDepth,
   maxBufferSize,
+  soapDetails,
   isPublic,
   startDate,
   endDate,
 }: {
   authority: Keypair;
+  fundWallet: PublicKey;
   metaplex: Metaplex;
   maxDepth: number;
   maxBufferSize: number;
+  soapDetails: {
+    name: string;
+    symbol: string;
+    uri: string;
+    sellerFeeBasisPoints: number;
+  };
   isPublic: boolean;
   startDate: BN | null;
   endDate: BN | null;
@@ -114,7 +123,7 @@ export const init = async ({
     initTx.add(createTreeIx);
 
     const initIx = await program.methods
-      .init(maxDepth, maxBufferSize, isPublic, startDate, endDate)
+      .init(maxDepth, maxBufferSize, soapDetails, isPublic, startDate, endDate)
       .accounts({
         dispenser,
         authority: authority.publicKey,
@@ -123,6 +132,7 @@ export const init = async ({
         collectionMetadata,
         treeAuthority,
         merkleTree: merkleTree.publicKey,
+        fundWallet: fundWallet,
         systemProgram: SystemProgram.programId,
         tokenProgram: TOKEN_PROGRAM_ID,
         associatedTokenProgram: ASSOCIATED_PROGRAM_ID,
@@ -168,12 +178,20 @@ export const init = async ({
 const main = async () => {
   try {
     const authority = await initializeKeypair(connection, "soap_creator_1");
+    const fundWallet = await initializeKeypair(connection, "fund_wallet");
     const metaplex = Metaplex.make(connection).use(keypairIdentity(authority));
     await init({
       authority,
+      fundWallet: fundWallet.publicKey,
       metaplex,
       maxDepth: 3,
       maxBufferSize: 8,
+      soapDetails: {
+        name: "First cNFT",
+        symbol: "cNFT",
+        uri: "https://arweave.net/mo4NBHmhuCt9ZjJ6jykMgKw-te0uTdgDBkBjVAJ-v20",
+        sellerFeeBasisPoints: 500,
+      },
       isPublic: false,
       endDate: toBigNumber(new Date().getTime()).add(
         toBigNumber(1 * 24 * 60 * 60 * 1000)
