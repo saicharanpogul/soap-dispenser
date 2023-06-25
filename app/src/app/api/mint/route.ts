@@ -153,7 +153,6 @@ export const POST = async (req: Request, context: any) => {
     const authority = searchParams.get("authority");
     const collection = searchParams.get("collection");
     const { account } = body;
-    console.log(account, collection, authority);
     if (!account || !collection || !authority)
       throw new Error("Missing account");
     const receiver = new PublicKey(account);
@@ -199,8 +198,6 @@ export const POST = async (req: Request, context: any) => {
       })
     );
     mintTx.partialSign(fundWallet);
-    console.log(JSON.stringify(mintTx, null, 2));
-    console.log(mintTx.signatures);
     const serializedTx = mintTx.serialize({
       verifySignatures: false,
       requireAllSignatures: false,

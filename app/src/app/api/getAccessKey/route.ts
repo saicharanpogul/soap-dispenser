@@ -15,7 +15,6 @@ export const POST = forKey(
         { publicKey },
         process.env.NEXT_PUBLIC_SECRET as string
       );
-      console.log("accessKey", accessKey);
       return NextResponse.json({ success: true, accessKey }, { status: 200 });
     } catch (error: any) {
       console.log(error);

@@ -220,6 +220,7 @@ const ConnectWalletButton: React.FC<Props> = ({
               flexDirection="column"
             >
               <Button
+                display={["initial", "initial", "none"]}
                 width={"full"}
                 variant="unstyled"
                 color={"text.900"}
@@ -229,7 +230,7 @@ const ConnectWalletButton: React.FC<Props> = ({
               >
                 Dashboard
               </Button>
-              <Divider />
+              <Divider display={["initial", "initial", "none"]} />
               <Button
                 width={"full"}
                 variant="unstyled"

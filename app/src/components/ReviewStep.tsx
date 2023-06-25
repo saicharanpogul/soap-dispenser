@@ -133,7 +133,6 @@ const ReviewStep: React.FC<Props> = ({
       router.push(`/${dispenser}`);
       reset();
     } catch (error: any) {
-      console.log(error);
       console.log("logs", error.logs);
       toast({
         title: "Something went wrong",
