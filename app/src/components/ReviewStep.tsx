@@ -99,6 +99,8 @@ const ReviewStep: React.FC<Props> = ({
       setPrice(_price / LAMPORTS_PER_SOL);
     } catch (error: any) {
       console.log(error);
+      console.log("log", error.log);
+      console.log("logs", error.logs);
       toast({
         title: "Unable to fetch price",
         status: "error",
