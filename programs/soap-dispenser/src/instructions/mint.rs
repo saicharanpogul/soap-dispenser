@@ -66,7 +66,7 @@ pub struct Mint<'info> {
 }
 
 pub fn mint_handler(ctx: Context<Mint>) -> Result<()> {
-    let rent: u64 = 5000;
+    let rent: u64 = 10000;
     let pot_balance = **ctx.accounts.payer.to_account_info().lamports.borrow_mut();
 
     // check if pot has enough funds to transfer back the rent
